@@ -30,13 +30,16 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+    buildFeatures {
+        dataBinding = true
+    }
     kotlinOptions {
         jvmTarget = "1.8"
     }
 }
 
 dependencies {
-
+    // default 8 by Android Studio
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -45,4 +48,18 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    // Extra dependencies
+    val navVersion = "2.7.3"
+
+    //navigation
+    implementation ("androidx.navigation:navigation-fragment-ktx:$navVersion")
+    implementation ("androidx.navigation:navigation-ui-ktx:$navVersion")
+    implementation("androidx.navigation:navigation-common:$navVersion")
+
+    //cardView
+    implementation("androidx.cardview:cardview:1.0.0")
+
+    //RecyclerView
+    implementation("androidx.recyclerview:recyclerview:1.3.1")
 }
