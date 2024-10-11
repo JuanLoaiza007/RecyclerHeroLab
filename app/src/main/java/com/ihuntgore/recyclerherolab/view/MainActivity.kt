@@ -1,10 +1,11 @@
-package com.ihuntgore.recyclerherolab
+package com.ihuntgore.recyclerherolab.view
 
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.ihuntgore.recyclerherolab.R
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
