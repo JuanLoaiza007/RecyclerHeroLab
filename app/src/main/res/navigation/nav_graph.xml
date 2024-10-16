@@ -10,6 +10,18 @@
         android:name="com.ihuntgore.recyclerherolab.view.fragments.HomeFragment"
         android:label="HomeFragment"
         tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_homeFragment_to_recyclerFragment"
+            app:destination="@id/fragmentRecycler"
+            />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragmentRecycler"
+        android:name="com.ihuntgore.recyclerherolab.view.fragments.RecyclerFragment"
+        android:label="RecyclerFragment"
+        tools:layout="@layout/fragment_recycler"
+        >
     </fragment>
 
 </navigation>
