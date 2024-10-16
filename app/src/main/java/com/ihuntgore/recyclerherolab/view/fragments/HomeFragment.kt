@@ -22,15 +22,27 @@ class HomeFragment : Fragment() {
 
     private lateinit var binding: FragmentHomeBinding
 
-    // Guarda el resultado de una solicitud de permiso
+    // Guarda el resultado de una solicitud de permiso, por defecto
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) {
                 openCamera()
             } else {
-                Toast.makeText(context, "Necesitas aceptar los Permisos", Toast.LENGTH_SHORT).show()
+                // Si el permiso fue denegado y se puede pedir racionalmente entonces solo avisar
+                if (shouldShowRequestPermissionRationale(android.Manifest.permission.CAMERA)) {
+                    Toast.makeText(
+                        context,
+                        "Necesita habilidar los permisos de camara",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                // Si el permiso fue denegado y no se puede pedir racionalmente entonces sugerir activarlo manualmente
+                else {
+                    cameraPermitRequestOnSettings()
+                }
             }
         }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,6 +84,22 @@ class HomeFragment : Fragment() {
         startActivityForResult(intent, 0)
     }
 
+    private fun cameraPermitRequestOnSettings(){
+        AlertDialog.Builder(requireContext())
+            .setTitle("Permisos de Cámara Denegados")
+            .setMessage("El permiso de la cámara ha sido denegado. ¿Desea habilitarlo manualmente desde la configuración?")
+
+            // Si el usuario nos dice que esta dispuesto, lo redirigiremos a la configuracion de Android
+            .setPositiveButton("Ir a la configuración") { _, _ ->
+                val intent = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS) // señal para abrir en Android la configuración de la app
+                intent.data = Uri.parse("package:${requireContext().packageName}") // El nombre del paquete que usará la señal
+                startActivity(intent) // Invocar la señal ya que está configurada
+            }
+
+            // Si el usuario no esta dispuesto pues ni modo
+            .setNegativeButton("Cancelar") { dialog, _ -> dialog.dismiss() }.show()
+    }
+
     private fun cameraPermitRequest() {
         // Para versiones de Android anteriores a 6.0 Marshmallow (API 23) no es necesario pedir este permiso
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
@@ -89,7 +117,7 @@ class HomeFragment : Fragment() {
                 }
 
                 // Condición si el permiso ha sido denegado previamente para volverlo a pedir explicando su importancia
-                // A esto se le llama hacer la solicitud racionalmente
+                // A esto se le llama hacer la solicitud racionalmente, algunos fabricantes y versiones de android solo permiten hacerla una vez
                 shouldShowRequestPermissionRationale(android.Manifest.permission.CAMERA) -> {
 
                     // Manualmente usaremos un AlertDialog antes de decirle al sistema que pida el permiso
@@ -104,25 +132,6 @@ class HomeFragment : Fragment() {
 
                         // Si el usuario no esta dispuesto entonces no hacemos nada
                         .setNegativeButton("Mejor no") { _, _ -> }.show()
-                }
-
-                // Condición si el permiso se ha denegado permantentemente, es decir,
-                // hicimos la solicitud racionalmente, nos rechazaron y ya no podemos solicitarlo desde la app
-                (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED &&
-                !shouldShowRequestPermissionRationale(android.Manifest.permission.CAMERA)) -> {
-                    AlertDialog.Builder(requireContext())
-                        .setTitle("Permisos de Cámara Denegados")
-                        .setMessage("El permiso de la cámara ha sido denegado permanentemente. Por favor, habilítelo manualmente desde la configuración de la aplicación.")
-
-                        // Si el usuario nos dice que esta dispuesto, lo redirigiremos a la configuracion de Android
-                        .setPositiveButton("Configuración") { _, _ ->
-                            val intent = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS) // señal para abrir en Android la configuración de la app
-                            intent.data = Uri.parse("package:${requireContext().packageName}") // El nombre del paquete que usará la señal
-                            startActivity(intent) // Invocar la señal ya que está configurada
-                        }
-
-                        // Si el usuario no esta dispuesto pues ni modo
-                        .setNegativeButton("Cancelar") { dialog, _ -> dialog.dismiss() }.show()
                 }
 
                 // Condicion por defecto, pedir los permisos sin explicar pa que o que.
